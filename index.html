@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashcam Speed Calculator</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="anonymous"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container my-2">
+      <div class="alert alert-warning d-block d-lg-none" role="alert">
+        This works best on your desktop computer
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-lg-6 p-1">
+          <input type="file" id="fileinput" name="fileinput" />
+          <div id="overlaycontainer">
+            <div id="uploadicon">
+              <div
+                class="d-flex align-items-center justify-content-center h-100"
+              >
+                <img src="upload.svg" width="64" />
+              </div>
+            </div>
+
+            <video id="video" muted></video>
+            <canvas id="videocanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="col-lg-6 bg-light">
+          <div id="map" class="m-1"></div>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-lg-12 w-100">
+          <div class="d-flex align-items-center justify-content-center gap-3">
+            <div class="btn-group" role="group">
+              <button
+                class="skip-sec btn btn-sm btn-outline-primary"
+                disabled
+                data-sec="-10"
+              >
+                ← 10 sec
+              </button>
+              <button
+                class="skip-sec btn btn-sm btn-outline-primary"
+                disabled
+                data-sec="-1"
+              >
+                ← 1 sec
+              </button>
+              <button
+                class="skip-frame btn btn-sm btn-outline-primary"
+                disabled
+                data-frame="-10"
+              >
+                ← 10 frame
+              </button>
+              <button
+                class="skip-frame btn btn-sm btn-outline-primary"
+                disabled
+                data-frame="-1"
+              >
+                ← 1 frame
+              </button>
+            </div>
+
+            <div class="input-group input-group-sm" style="max-width: 150px">
+              <input
+                type="text"
+                disabled
+                class="form-control"
+                style="text-align: right"
+                placeholder="00.00"
+                id="timer-sec"
+              />
+              <span class="input-group-text">sec</span>
+            </div>
+
+            <div class="input-group input-group-sm" style="max-width: 150px">
+              <input
+                type="text"
+                disabled
+                class="form-control"
+                style="text-align: right"
+                placeholder="0"
+                id="timer-frame"
+              />
+              <span class="input-group-text">frame</span>
+            </div>
+
+            <div class="btn-group" role="group">
+              <button
+                class="skip-frame btn btn-sm btn-outline-primary"
+                disabled
+                data-frame="1"
+              >
+                1 frame →
+              </button>
+              <button
+                class="skip-frame btn btn-sm btn-outline-primary"
+                disabled
+                data-frame="10"
+              >
+                10 frame →
+              </button>
+              <button
+                class="skip-sec btn btn-sm btn-outline-primary"
+                disabled
+                data-sec="1"
+              >
+                1 sec →
+              </button>
+              <button
+                class="skip-sec btn btn-sm btn-outline-primary"
+                disabled
+                data-sec="10"
+              >
+                10 sec →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <div class="col-lg-3 ">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Point A</h5>
+              <div class="card-text" >
+                <dl class="row" id="point-a">
+                  <dt class="col-sm-6 text-md-right">Latitude</dt>
+                  <dd class="col-sm-6"><span class="lat">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Longitude</dt>
+                  <dd class="col-sm-6"><span class="lng">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Timestamp</dt>
+                  <dd class="col-sm-6"><span class="sec">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Frame</dt>
+                  <dd class="col-sm-6"><span class="frame">...</span></dd>
+                </dl>
+              </div>
+              <button class="btn btn-primary w-100" id="set-point-a">Set</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 offset-lg-1">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Point B</h5>
+              <div class="card-text">
+                <dl class="row" id="point-b">
+                  <dt class="col-sm-6 text-md-right">Latitude</dt>
+                  <dd class="col-sm-6"><span class="lat">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Longitude</dt>
+                  <dd class="col-sm-6"><span class="lng">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Timestamp</dt>
+                  <dd class="col-sm-6"><span class="sec">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Frame</dt>
+                  <dd class="col-sm-6"><span class="frame">...</span></dd>
+                </dl>
+              </div>
+              <button class="btn btn-primary w-100" id="set-point-b">Set</button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-lg-3 offset-lg-2">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Result</h5>
+              <div class="card-text">
+                <dl class="row" id="results">
+                  <dt class="col-sm-6 text-md-right">Distance</dt>
+                  <dd class="col-sm-6"><span class="dist">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Time</dt>
+                  <dd class="col-sm-6"><span class="sec">...</span></dd>
+
+                  <dt class="col-sm-6 text-md-right">Speed</dt>
+                  <dd class="col-sm-6"><span class="speed">...</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/mediainfo.js@0.3.2/dist/umd/index.min.js"
+      integrity="sha384-Ddq1BFsR6suAvCxSBJ+eWZX5oH1cXZM/uHbQEJTe+rQFATLnPkWdJ67d35v33Ahs"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="calc.js"></script>
+    <script src="controls.js"></script>
+    <script src="metadata.js"></script>
+    <script src="overlay.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+      initMap();
+      initVideo();
+      initControls();
+      initCalc();
+    </script>
+  </body>
+</html>

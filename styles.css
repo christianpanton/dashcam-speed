@@ -1,0 +1,30 @@
+#map {
+  width: 100%;
+  min-height: 300px;
+  cursor: crosshair;
+}
+
+#overlaycontainer {
+  position: relative;
+  width: 100%;
+}
+
+#video,
+#uploadicon {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#videocanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  border: 1px solid gray;
+}
+
+#fileinput {
+  display: none;
+}
